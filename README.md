@@ -4,15 +4,17 @@ A compact inference project for studying KV caching in Qwen3.5's hybrid attentio
 
 This repository is a curated copy of my work on the [ADS 2026 Spring course project](https://github.com/DyingCoderLin/ADS-26-spring-project). The course supplied the base inference framework, task scaffolding, documentation, and chatbox UI. My implementation fills in the cache, prefix-cache, SSD-offload, and context-management tasks. See [PROVENANCE.md](PROVENANCE.md) for the scope of each contribution. The model weights, course handouts, submission archives, screenshots, and local sessions are intentionally excluded.
 
-## What is implemented
+## Five-phase roadmap
 
-| Area | Implementation |
-| --- | --- |
-| Hybrid attention cache | Growing K/V tensors for full-attention layers; convolution and recurrent state for linear-attention layers |
-| Prefill and decode | Prefill once, then forward only the new token while carrying cache state |
-| Prefix cache | Longest-prefix lookup, cloned cache snapshots, hit counters, and partial prefill |
-| Two-tier cache | In-memory LRU with CPU serialization, SSD offload, reload, and on-disk index recovery |
-| Multi-turn context | Rolling summaries, session persistence, and stable-prefix message ordering |
+Each phase addresses a limitation exposed by the previous one. Phase 1 establishes the course-provided baseline; my implementation work is concentrated in the TODO tasks of Phases 2–5.
+
+| Phase | Focus | What it does and why |
+| --- | --- | --- |
+| **1. Baseline inference** | Run Qwen3.5 without caching | Loads the model and produces a correctness/performance reference for the later optimizations. Use `--no-cache` to compare against it. |
+| **2. KV/state cache** | Avoid recomputing the whole history during generation | Caches growing K/V tensors in full-attention layers and fixed-size convolution/recurrent state in linear-attention layers. Prefill runs once; decode forwards one new token at a time. |
+| **3. Prefix cache** | Reuse work across requests | Finds the longest cached prompt prefix, clones its cache snapshot, and prefills only the unmatched suffix. Hit counters show how much prompt work was reused. |
+| **4. Memory + SSD cache** | Keep more reusable prefixes than memory alone can hold | Uses an in-memory LRU, serializes evicted cache state to CPU/SSD, reloads it on a hit, and rebuilds the disk index across processes. |
+| **5. Multi-turn context** | Keep conversations within a token budget | Compresses older turns into a rolling summary, saves/loads sessions, and assembles stable prompt prefixes to improve prefix-cache reuse. The course-provided chatbox demonstrates the result. |
 
 ## Requirements
 
