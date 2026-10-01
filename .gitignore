@@ -1,0 +1,29 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Downloaded model files and generated runtime state
+Qwen3.5-0.8B/
+models/
+checkpoints/
+*.safetensors
+*.bin
+sessions/
+cache_data/
+prefix_cache/
+*.pt
+
+# Course submissions and local artifacts
+*_project_phase*/
+*_project_phase*.zip
+*_project_phase*.7z
+*.log
+.env
+.env.*
+!.env.example
